@@ -1,4 +1,4 @@
-function [ pyr ] = pyrReconstruct( pyr, levels )
+function [ pyr ] = pyrReconstruct( pyr )
 %PYRRECONSTRUCT Uses a Laplacian pyramid to reconstruct a image
 %   IMG = PYRRECONSTRUCT(PYR) PYR should be a 1*level cell array containing
 %   the pyramid, SIZE(PYR{i}) = SIZE(PYR{i-1})*2-1

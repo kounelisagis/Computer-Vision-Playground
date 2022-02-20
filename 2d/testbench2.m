@@ -14,9 +14,9 @@ m1(90:120,70:140,:) = 1;
 B = cell(1,level);
 for p = 1:level
 	[Mp, Np, ~] = size(woman_lap{p});
-	maskap = imresize(m1, [Mp Np]);
-	maskbp = imresize(1-m1, [Mp Np]);
-	B{p} = woman_lap{p}.*maskap + hand_lap{p}.*maskbp;
+	m1_resized = imresize(m1, [Mp Np]);
+	m2_resized = imresize(1-m1, [Mp Np]);
+	B{p} = woman_lap{p}.*m1_resized + hand_lap{p}.*m2_resized;
 end
 
 B_reconstructed = pyrReconstruct(B);
