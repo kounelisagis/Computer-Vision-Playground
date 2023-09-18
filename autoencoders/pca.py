@@ -10,7 +10,7 @@ train_dataset = datasets.MNIST(root='./mnist_data/', train=True, download=True)
 
 # keep only the images with label = 0 or 4 or 5
 # sample_data = train_dataset.train_data[(train_dataset.train_labels == 0) | (train_dataset.train_labels == 4) | (train_dataset.train_labels == 5)]
-sample_data = train_dataset.train_data
+sample_data = train_dataset.train_data/255
 
 # print median of the dataset
 # plt.imshow(np.average(sample_data, 0), cmap='gray')
@@ -55,7 +55,7 @@ for i, L in enumerate(principal_components):
     # get the top L eigen vectors
     v_hat = v[:, :L]
     # save them to file
-    np.save('v_PCA.npy', v_hat)
+    np.save('./v_PCA.npy', v_hat)
 
     # reconstruct the data using top L eigen vectors
     reconstructed_data = np.matmul(sample_data, v_hat)

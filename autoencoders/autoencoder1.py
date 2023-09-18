@@ -12,15 +12,14 @@ class Autoencoder(nn.Module):
         super(Autoencoder,self).__init__()
         
         self.encoder = nn.Sequential(
-            nn.Linear(784, 128)  # compress to 128 features
+            nn.Linear(784, 128, bias=False)  # compress to 128 features
         )
         self.decoder = nn.Sequential(             
-            nn.Linear(128, 784),
+            nn.Linear(128, 784, bias=False),
             nn.Sigmoid()
         )
 
     def forward(self,x):
-        # flatten image x to vector
         x = self.encoder(x)
         x = self.decoder(x)
         return x
@@ -30,9 +29,7 @@ trainloader = torch.utils.data.DataLoader(
     torchvision.datasets.MNIST('./mnist_data/', train=True, download=True,
                    transform=transforms.Compose([
                        transforms.ToTensor(),
-                       transforms.Normalize((0.1307,), (0.3081,)),
                        transforms.Lambda(lambda x: x.view(-1)), # flatten the image to a vector
-                       transforms.Lambda(lambda x: x/255), # normalize the image to [0, 1] - required by binary cross entropy
                        transforms.Lambda(lambda x: x.float()),
             ])),
     batch_size=250, shuffle=True)
@@ -41,13 +38,9 @@ trainloader = torch.utils.data.DataLoader(
 v_PCA = np.load('v_PCA.npy')
 
 num_epochs = 40
-batch_size = 128
 model = Autoencoder()
-# distance = nn.MSELoss()
-# distance = binary entropy loss
 distance = nn.BCELoss()
-# distance = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-5, lr=1e-3)
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
 latent_space_errors = []
 
@@ -76,3 +69,33 @@ plt.xlabel('Epoch')
 plt.ylabel('Error')
 plt.title('Latent Space-PCA Error')
 plt.show()
+
+testset = torchvision.datasets.MNIST('./mnist_data/', train=False, download=True,
+                   transform=transforms.Compose([
+                       transforms.ToTensor(),
+                       transforms.Lambda(lambda x: x.view(-1)), # flatten the image to a vector
+                       transforms.Lambda(lambda x: x.float()),
+            ]))
+
+# test model on the first 5 images of test set
+n = 5
+testloader = torch.utils.data.DataLoader(testset, batch_size=n, shuffle=False)
+dataiter = iter(testloader)
+images, labels = dataiter.next()
+outputs = model(images)
+
+fig, axes = plt.subplots(nrows=2, ncols=n, sharex=True, sharey=True, figsize=(20,4))
+for images, row in zip([images, outputs], axes):
+    for img, ax in zip(images, row):
+        ax.imshow(img.view(28,28).detach().numpy(), cmap='gray')
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+plt.show()
+
+# calculate the mean square reconstruction error
+testloader = torch.utils.data.DataLoader(testset, batch_size=10000, shuffle=False)
+dataiter = iter(testloader)
+images, labels = dataiter.next()
+outputs = model(images)
+error = torch.mean((images - outputs)**2)
+print('Mean Reconstruction Error = ', error.item())

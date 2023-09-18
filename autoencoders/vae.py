@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class VAE(nn.Module):
@@ -60,7 +61,7 @@ trainloader = torch.utils.data.DataLoader(
             ])),
     batch_size=250, shuffle=True)
 
-num_epochs = 100
+num_epochs = 2
 model = VAE()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
@@ -85,14 +86,13 @@ for epoch in range(num_epochs):
     output = model.decoder(z)
 
     # plot reconstructed images
-    if epoch+1 in [1, 50, 100]:
-        fig, axes = plt.subplots(nrows=8, ncols=8, sharex=True, sharey=True, figsize=(12,12))
-        for ax, img in zip(axes.flatten(), output):
-            ax.imshow(img.view(28,28).detach().numpy(), cmap='gray')
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-        plt.show()
-
+    # if epoch+1 in [1, 50, 100]:
+    #     fig, axes = plt.subplots(nrows=8, ncols=8, sharex=True, sharey=True, figsize=(12,12))
+    #     for ax, img in zip(axes.flatten(), output):
+    #         ax.imshow(img.view(28,28).detach().numpy(), cmap='gray')
+    #         ax.get_xaxis().set_visible(False)
+    #         ax.get_yaxis().set_visible(False)
+    #     plt.show()
 
 # scatter plot of the latent space different color for different digits of the test set
 testset = torchvision.datasets.MNIST('./mnist_data/', train=False, download=True,
